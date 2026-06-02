@@ -6,7 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:your_password@localhost:5432/attritioniq")
+# Read the full DATABASE_URL from the environment. Do NOT hard-code credentials here.
+# Example: export DATABASE_URL="postgresql://postgres:password@hostname:5432/attritioniq"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set. Set it securely before running the app.")
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

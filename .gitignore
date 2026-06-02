@@ -1,4 +1,17 @@
-# Virtual Environment
+venv/
+env/
+__pycache__/
+*.pyc
+.env
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore virtual environment folders that may exist inside the backend
+attritioniq/backend/venv/
+
+# Model / data artifacts (uncomment if you don't want to include dataset)
+# data/# Virtual Environment
 venv/
 env/
 ENV/

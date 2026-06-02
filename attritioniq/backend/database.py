@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Read the full DATABASE_URL from the environment. Do NOT hard-code credentials here.
-# Example: export DATABASE_URL="postgresql://postgres:password@hostname:5432/attritioniq"
+# Example (do NOT commit credentials): export DATABASE_URL="postgresql://<username>:<password>@<hostname>:5432/attritioniq"
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL environment variable is not set. Set it securely before running the app.")

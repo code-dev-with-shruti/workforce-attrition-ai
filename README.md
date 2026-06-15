@@ -1,7 +1,3 @@
-# workforce-attrition-ai
-
-AI-powered HR analytics platform for predicting employee attrition risk, explaining flight drivers, and recommending retention actions.
-
 ## Project Summary
 
 This project combines a Python/FastAPI backend, a machine learning pipeline, and a React/Vite frontend to deliver an interactive HR attrition intelligence system.

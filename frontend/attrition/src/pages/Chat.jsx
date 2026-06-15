@@ -35,7 +35,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="p-6 flex flex-col gap-4 max-w-3xl mx-auto h-screen">
+    <div className="p-6 flex flex-col gap-4 max-w-3xl mx-auto" style={{ height: 'calc(100vh - 2rem)' }}>
       <div>
         <h1 className="text-[20px] font-semibold text-slate-800 dark:text-white">AI Assistant</h1>
         <p className="text-[13px] text-slate-500 dark:text-gray-400 mt-0.5">Ask anything about employee retention</p>
@@ -62,7 +62,7 @@ export default function Chat() {
             <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${m.role === 'ai' ? 'bg-blue-600' : 'bg-slate-200 dark:bg-gray-700'}`}>
               {m.role === 'ai' ? <Bot size={14} className="text-white" /> : <User size={14} className="text-slate-600 dark:text-gray-300" />}
             </div>
-            <div className={`max-w-[80%] px-4 py-2.5 rounded-xl text-[13px] leading-relaxed ${
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-xl text-[13px] leading-relaxed whitespace-pre-wrap ${
               m.role === 'ai'
                 ? 'bg-slate-50 dark:bg-gray-800 text-slate-700 dark:text-gray-200'
                 : 'bg-blue-600 text-white'

@@ -1,109 +1,160 @@
-## Project Summary
+# AttriSense — workforce-attrition-ai
 
-This project combines a Python/FastAPI backend, a machine learning pipeline, and a React/Vite frontend to deliver an interactive HR attrition intelligence system.
+AI-powered HR analytics platform that predicts employee attrition risk, explains flight risk drivers with SHAP, forecasts departure timelines with survival analysis, and recommends retention actions using Gemini.
 
-### What has been built
+> Predict who will leave, when they will leave, and what can stop them.
 
-- Backend API with FastAPI and SQLAlchemy
-- Data ingestion from IBM HR Employee Attrition CSV into a PostgreSQL-compatible database
-- Employee attrition prediction using XGBoost with SMOTE preprocessing
-- Risk scoring and probability output per employee
-- SHAP-based explanation of top importance features
-- Survival timeline prediction for employee flight risk
-- Interactive HR chatbot powered by Ollama LLM for retention recommendations
-- Frontend dashboard with employee data, risk visualization, predictions, and chat
+---
 
-## Key Components
+## What Makes This Different
 
-### Backend (`attritioniq/backend`)
+Most HR attrition projects stop at a binary prediction. AttriSense adds:
 
-- `main.py` — FastAPI app setup, router registration, CORS middleware
-- `database.py` — SQLAlchemy database connection and session management
-- `models.py` — `Employee` ORM model matching the HR dataset and prediction fields
-- `load_data.py` — CSV loader that prepares the dataset, drops unused columns, and inserts employee records into the database
-- `train_model.py` — preprocessing, label encoding, one-hot encoding, SMOTE balancing, XGBoost training, and artifact serialization
-- `predict.py` — prediction utilities for individual employees and batch CSV prediction output
-- `shap_explain.py` — SHAP explanation integration to expose top attrition factors
-- `survival_predict.py` — survival model timeline generation for predicted attrition risk
-- `routes/` — API endpoints for employees, predictions, and chat
-  - `employees.py` — list and fetch employee profile endpoints
-  - `predictions.py` — predict employee attrition, batch risk inference, explain predictions, and survival timeline
-  - `chat.py` — HR assistant chat endpoint with contextual employee recommendations using Ollama
+- **Time-to-attrition forecasting** via Cox Proportional Hazards
+- **SHAP explainability** for each employee's flight drivers
+- **LLM-powered retention guidance** using Gemini instead of a local model
 
-### Frontend (`frontend/attrition`)
+---
 
-- React + Vite application
-- Pages for:
-  - dashboard overview
-  - employee list
-  - prediction management
-  - HR chat support
-  - CSV upload
-- Uses `react-router-dom`, `recharts`, and `lucide-react`
-- API client configured in `src/api/client.js` to connect to the FastAPI backend
+## Tech Stack
 
-## Data and Machine Learning
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + Vite + TailwindCSS + Recharts |
+| Backend | FastAPI + SQLAlchemy |
+| Database | PostgreSQL |
+| Classifier | XGBoost + SMOTE + SHAP |
+| Survival model | lifelines Cox Proportional Hazards |
+| LLM | Google Gemini |
+| Data | IBM HR Employee Attrition Dataset |
 
-- Source dataset: `WA_Fn-UseC_-HR-Employee-Attrition.csv`
-- Data preprocessing includes:
-  - categorical label encoding
-  - one-hot encoding for travel, department, education field, job role, marital status
-  - removal of unused columns: `EmployeeCount`, `StandardHours`, `Over18`, `EmployeeNumber`
-- Model training produces saved artifacts:
-  - `xgb_model.pkl`
-  - `encoder.pkl`
-  - `feature_columns.pkl`
-- Prediction logic uses a threshold of `0.25` for classification and maps probabilities to risk levels:
-  - `High` if > 0.6
-  - `Medium` if > 0.35
-  - `Low` otherwise
+---
 
-## Running the project
+## Project Structure
+
+```
+workforce-attrition-ai/
+├── attritioniq/
+│   └── backend/
+│       ├── main.py
+│       ├── database.py
+│       ├── models.py
+│       ├── schemas.py
+│       ├── load_data.py
+│       ├── train_model.py
+│       ├── train_survival.py
+│       ├── predict.py
+│       ├── shap_explain.py
+│       ├── survival_predict.py
+│       └── routes/
+│           ├── employees.py
+│           ├── predictions.py
+│           └── chat.py
+├── frontend/
+│   └── attrition/
+│       ├── package.json
+│       ├── package-lock.json
+│       └── src/
+│           ├── App.jsx
+│           ├── api/client.js
+│           ├── components/
+│           └── pages/
+│               ├── Dashboard.jsx
+│               ├── Employees.jsx
+│               ├── Predictions.jsx
+│               ├── Chat.jsx
+│               └── Upload.jsx
+└── README.md
+```
+
+---
+
+## Machine Learning Pipeline
+
+### Classifier — XGBoost
+- Data source: `WA_Fn-UseC_-HR-Employee-Attrition.csv`
+- Categorical label encoding and one-hot encoding
+- SMOTE balancing on training data
+- Threshold: 0.25 for recall-priority risk classification
+- Risk levels: High (>0.6), Medium (>0.35), Low (≤0.35)
+
+### Survival Model — Cox PH
+- Uses `YearsAtCompany * 12` as duration
+- Event label: attrition
+- Produces employee survival curves over time
+
+### Explainability — SHAP
+- TreeExplainer on XGBoost
+- Returns top 3 features driving attrition risk per employee
+
+---
+
+## API Endpoints
+
+### Employees
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/employees/` | List all employees |
+| GET | `/employees/{id}` | Fetch profile for a single employee |
+
+### Predictions
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/predictions/predict/{id}` | Predict attrition for one employee |
+| POST | `/predictions/predict_all` | Batch predict all employees |
+| GET | `/predictions/explain/{id}` | SHAP explanation for one employee |
+| GET | `/predictions/survival/{id}` | 12-month survival timeline |
+| GET | `/predictions/all` | List employees with predictions |
+
+### Chat
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/chat/ask/{employee_id}` | Ask Gemini about an employee or workforce trends |
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the backend root:
+
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/attritioniq
+GEMINI_API_KEY=your_key_from_aistudio.google.com
+```
+
+---
+
+## Running the Project
 
 ### Backend
 
-1. Create and activate your Python virtual environment.
-2. Install required Python packages (example):
-   ```bash
-   pip install fastapi uvicorn sqlalchemy psycopg2-binary pandas scikit-learn xgboost imbalanced-learn shap joblib python-dotenv ollama
-   ```
-3. Set `DATABASE_URL` in the environment or `.env` file.
-4. Load dataset into the database:
-   ```bash
-   python attritioniq/backend/load_data.py
-   ```
-5. Train the model:
-   ```bash
-   python attritioniq/backend/train_model.py
-   ```
-6. Start the API:
-   ```bash
-   uvicorn attritioniq.backend.main:app --reload --host 0.0.0.0 --port 8000
-   ```
+```bash
+python -m venv .venv
+.venv\Scripts\activate    # Windows
+source .venv/bin/activate # Mac/Linux
+
+pip install fastapi uvicorn sqlalchemy psycopg2-binary pandas scikit-learn \
+    xgboost imbalanced-learn shap lifelines joblib python-dotenv \
+    google-generativeai python-multipart
+
+python attritioniq/backend/load_data.py
+python attritioniq/backend/train_model.py
+python attritioniq/backend/train_survival.py
+uvicorn attritioniq.backend.main:app --reload --port 8000
+```
 
 ### Frontend
 
-1. Navigate to `frontend/attrition`
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+cd frontend/attrition
+npm install
+npm run dev
+```
 
-## Main features
+---
 
-- Predict employee attrition risk with an XGBoost model
-- Store results in a SQL-backed employee table
-- Provide SHAP interpretable feature explanations
-- Predict attrition survival timelines
-- Offer a conversational HR recommendation assistant using LLM
-- Interactive data visualization dashboard
+## Recent Changes
 
-## Notes
-
-- The backend uses `DATABASE_URL` from environment variables.
-- The chat endpoint uses an Ollama model: `llama3.2:3b`.
-- The frontend is configured to connect to `http://localhost:8000` by default.
+- Updated the HR assistant chat integration to use Google Gemini instead of Ollama.
+- Clarified backend and frontend startup commands.
+- Added README notes about PostgreSQL and Gemini configuration.

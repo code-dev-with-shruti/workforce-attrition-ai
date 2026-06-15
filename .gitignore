@@ -10,6 +10,10 @@ __pycache__/
 # Ignore virtual environment folders that may exist inside the backend
 attritioniq/backend/venv/
 
+# Ignore local database and environment templates
+attritioniq/backend/attrition.db
+.env.example
+
 # Model / data artifacts (uncomment if you don't want to include dataset)
 # data/# Virtual Environment
 venv/

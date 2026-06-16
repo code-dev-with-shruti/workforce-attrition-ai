@@ -8,7 +8,7 @@ Base.metadata.drop_all(bind=engine)   # drops old table
 Base.metadata.create_all(bind=engine) # creates fresh table with correct types
 
 # Step 2 — Load CSV
-df = pd.read_csv("C:/Users/KIIT01/Desktop/Revised_Full_Stack_Project/WA_Fn-UseC_-HR-Employee-Attrition.csv")
+df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
 
 # Step 3 — Drop useless columns
 df.drop(['EmployeeCount', 'StandardHours', 'Over18'], axis=1, inplace=True)

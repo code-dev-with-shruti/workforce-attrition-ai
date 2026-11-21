@@ -48,12 +48,12 @@ Reproduce with `python attritioniq/backend/train_model.py` (writes `attritioniq/
 - **Survival analysis for timing.** `YearsAtCompany * 12` as duration, attrition as the event, so HR sees a risk curve over time, not only a yes/no.
 - **Config-driven threshold.** `train_model.py` writes `model_config.json`; `predict.py` reads it, so retraining updates the serving threshold without code edits.
 
-## Limitations (and what I would do next)
+## Future Validation and Responsible Use
 
-- **Small public benchmark.** Treat this as a demonstration of the full pipeline, not a production-grade predictor.
-- **Precision is about 40%.** Use as a prioritisation aid with human review.
-- **Fairness is not audited.** The model uses attributes such as age, gender and marital status because they are in the dataset. A production version would need a bias audit and a decision on which attributes to exclude.
-- **Next steps:** calibration of predicted probabilities, fairness metrics across groups, and monitoring for drift on real company data.
+- **Dataset scope:** This version establishes a reproducible baseline on the public IBM HR Attrition dataset (1,470 employees). Evaluating on larger, organization-specific datasets is a natural next step to understand how well the results generalize.
+- **Decision support:** At the selected operating threshold, the model achieves about 41% precision while prioritizing recall. Predictions are intended to support human review and prioritization, not to make employment decisions automatically.
+- **Fairness and governance:** The dataset includes attributes such as age, gender and marital status. A next validation phase can measure performance across employee groups and inform a documented feature-use policy before any real-world deployment.
+- **Next steps:** Calibrate predicted probabilities, assess fairness across groups, validate with appropriate real-world data, and monitor for data and model drift.
 
 ---
 

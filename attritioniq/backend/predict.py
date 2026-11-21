@@ -1,12 +1,22 @@
 # predict.py
 
+import json
+from pathlib import Path
+
 import pandas as pd
 import joblib
 
+HERE = Path(__file__).resolve().parent
+
+# Operating threshold is written by train_model.py to model_config.json.
+# Falls back to the original 0.25 if the file is absent (older model artifacts).
+_cfg = HERE / "model_config.json"
+THRESHOLD = json.loads(_cfg.read_text())["threshold"] if _cfg.exists() else 0.25
+
 # Load saved files
-model = joblib.load("xgb_model.pkl")
-encoder = joblib.load("encoder.pkl")
-feature_cols = joblib.load("feature_columns.pkl")
+model = joblib.load(HERE / "xgb_model.pkl")
+encoder = joblib.load(HERE / "encoder.pkl")
+feature_cols = joblib.load(HERE / "feature_columns.pkl")
 
 
 def preprocess(df):
@@ -51,7 +61,7 @@ def predict_csv(input_file, output_file="output_predictions.csv"):
 
     # Predict
     probs = model.predict_proba(processed_df)[:, 1]
-    preds = (probs > 0.25).astype(int)
+    preds = (probs > THRESHOLD).astype(int)
 
     # Add results
     original_df["Prediction"] = ["Will Leave" if p == 1 else "Will Stay" for p in preds]
@@ -80,7 +90,7 @@ def predict_single(employee_dict: dict) -> dict:
     processed = preprocess(df)
     
     prob = model.predict_proba(processed)[0][1]
-    pred = int(prob > 0.25)
+    pred = int(prob > THRESHOLD)
     
     risk = "High" if prob > 0.6 else "Medium" if prob > 0.35 else "Low"
     
